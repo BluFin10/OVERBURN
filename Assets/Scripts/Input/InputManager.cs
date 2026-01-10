@@ -10,7 +10,8 @@ public class InputManager : MonoBehaviour
     
     // make properties for our controls
     public Vector2 Move { get; private set; }
-    public Vector2 Look { get; private set; }
+    
+    public Vector3 MousePos { get; private set; }
     
     public InputAction RestartAction { get; private set; }
     public InputAction JumpAction { get; private set; }
@@ -44,6 +45,7 @@ public class InputManager : MonoBehaviour
         MenuAction = _controls.GameplayLoco.Menu;
         JumpAction = _controls.GameplayLoco.Jump;
         InteractAction = _controls.GameplayLoco.Interact;
+        MousePos = Input.mousePosition;
     }
 
 
@@ -51,6 +53,7 @@ public class InputManager : MonoBehaviour
     void Start()
     {
         _controls.GameplayLoco.Jump.performed += context => JumpPressed = true;
+        _controls.GameplayLoco.Jump.canceled += context => JumpPressed = false;
         
         _controls.GameplayLoco.Dash.performed += context => DashActive = true;
         _controls.GameplayLoco.Dash.canceled += context => DashActive = false;
