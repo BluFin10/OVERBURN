@@ -13,11 +13,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float dashPower = 10f;
     [SerializeField] private float dashDrag = 20f;
 
-    private Vector3 velocity;
+    private Vector3 _velocity;
+    private Vector3 _velocityX;
+    private Vector3 _movementDir;
 
-    private float verticalVelocity;
+    private float _verticalVelocity;
 
-    private bool isGrounded;
+    private bool _isGrounded;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -28,64 +30,61 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!isGrounded && _input.DashActive && !_input.DashConsumed)
+        _isGrounded = _controller.isGrounded;
+        Debug.Log(_isGrounded);
+        if (!_isGrounded && _input.DashActive && !_input.DashConsumed)
         {
-            _input.DashConsumed = true;
             HandleDash(Time.deltaTime);
         }
         
         else
         {
             HandleMovement(Time.deltaTime);
+            _velocityX.x = 0;
         }
+        if (!_isGrounded && _input.DashConsumed)
+        {
+            _velocity.x = _velocityX.x * 1.001f;
+        }
+        
+        _controller.Move(_velocity*Time.deltaTime);
     }
 
     private void HandleMovement(float delta)
     {
-        isGrounded = _controller.isGrounded;
         _input.MousePos = Mouse.current.position.ReadValue();
         _input.DashRay = Camera.main.ScreenPointToRay(_input.MousePos);
 
-        if (isGrounded)
+        if (_isGrounded)
         {
-            verticalVelocity = -2f;
+            _verticalVelocity = -2f;
         }
 
-        if (isGrounded && _input.JumpPressed)
+        if (_isGrounded && _input.JumpPressed)
         {
-            verticalVelocity = jumpForce;
+            _verticalVelocity = jumpForce;
             _input.JumpPressed = false;
         }
 
-        if (!isGrounded && _input.DashActive)
+        if (!_isGrounded && _input.DashActive)
         {
             Vector3 dashTarget = _input.DashRay.origin + _input.DashRay.direction * 10f;
             dashTarget.z = transform.position.z;
             Vector3 dashDir = (dashTarget - transform.position).normalized;
             _controller.Move(dashDir * (delta * dashPower));
-            Debug.Log(dashDir);
         }
 
-        verticalVelocity += gravity * delta;
+        _verticalVelocity += gravity * delta;
         
-        Vector3 moveDir = (_input.Move.x * transform.right) +(verticalVelocity*transform.up)+ (_input.Move.y * transform.forward);
-        _controller.Move(moveDir * (delta * moveSpeed));
+        _velocity = (_input.Move.x * transform.right * moveSpeed) +(_verticalVelocity*transform.up)+ (_input.Move.y * transform.forward);
     }
 
     private void HandleDash(float delta)
     {
         Vector3 dashTarget = _input.DashRay.origin + _input.DashRay.direction * 10f;
         dashTarget.z = transform.position.z;
-        Vector3 dashDir = (dashTarget - transform.position).normalized; 
-        velocity += dashDir * dashPower * delta;
-        if (!isGrounded && _input.DashConsumed)
-        {
-            velocity.x = Mathf.MoveTowards(velocity.x, 0f, dashDrag * delta);
-            
-            velocity.y += gravity * delta;
-            
-            _controller.Move(velocity * delta);
-        }
-        Debug.Log(dashDir);
+        _velocity = (dashTarget.x*transform.right*dashPower) + (dashTarget.y*transform.up);
+        _velocityX.x = _velocity.x;
+        _input.DashConsumed = true;
     }
 }
