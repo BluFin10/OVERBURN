@@ -604,9 +604,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd08488c54b509a40a64dcfb99fed374, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  gravity: -10
+  gravity: -60
   moveSpeed: 10
-  jumpForce: 100
+  jumpForce: 25
+  dashPower: 10
+  dashDrag: 20
 --- !u!143 &1585486096
 CharacterController:
   m_ObjectHideFlags: 0

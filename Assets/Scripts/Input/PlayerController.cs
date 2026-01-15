@@ -31,20 +31,10 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         _isGrounded = _controller.isGrounded;
-        Debug.Log(_isGrounded);
-        if (!_isGrounded && _input.DashActive && !_input.DashConsumed)
-        {
-            HandleDash(Time.deltaTime);
-        }
-        
-        else
-        {
             HandleMovement(Time.deltaTime);
-            _velocityX.x = 0;
-        }
         if (!_isGrounded && _input.DashConsumed)
         {
-            _velocity.x = _velocityX.x * 1.001f;
+            _velocity.x = _velocityX.x * 1.1f;
         }
         
         _controller.Move(_velocity*Time.deltaTime);
@@ -58,6 +48,7 @@ public class PlayerController : MonoBehaviour
         if (_isGrounded)
         {
             _verticalVelocity = -2f;
+            _input.DashConsumed = false;
         }
 
         if (_isGrounded && _input.JumpPressed)
@@ -72,19 +63,11 @@ public class PlayerController : MonoBehaviour
             dashTarget.z = transform.position.z;
             Vector3 dashDir = (dashTarget - transform.position).normalized;
             _controller.Move(dashDir * (delta * dashPower));
+            _input.DashConsumed = true;
         }
 
         _verticalVelocity += gravity * delta;
         
         _velocity = (_input.Move.x * transform.right * moveSpeed) +(_verticalVelocity*transform.up)+ (_input.Move.y * transform.forward);
-    }
-
-    private void HandleDash(float delta)
-    {
-        Vector3 dashTarget = _input.DashRay.origin + _input.DashRay.direction * 10f;
-        dashTarget.z = transform.position.z;
-        _velocity = (dashTarget.x*transform.right*dashPower) + (dashTarget.y*transform.up);
-        _velocityX.x = _velocity.x;
-        _input.DashConsumed = true;
     }
 }
