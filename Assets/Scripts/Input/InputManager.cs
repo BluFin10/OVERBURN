@@ -22,7 +22,8 @@ public class InputManager : MonoBehaviour
     
     public bool RestartActive { get; private set; }
     public bool JumpPressed { get; set; }
-    public bool DashActive { get; private set; }
+    public bool DashActive { get; set; }
+    public bool DashFire { get; set; }
     public bool DashConsumed { get; set; }
     public bool MenuActive { get; private set; }
     public bool InteractActive { get; private set; }
@@ -58,7 +59,7 @@ public class InputManager : MonoBehaviour
         _controls.GameplayLoco.Jump.canceled += context => JumpPressed = false;
         
         _controls.GameplayLoco.Dash.started += context => DashActive = true;
-        _controls.GameplayLoco.Dash.canceled += context => DashActive = false;
+        _controls.GameplayLoco.Dash.canceled += context => DashFire = true;
         
         _controls.GameplayLoco.Restart.performed += context => RestartActive = true;
         _controls.GameplayLoco.Restart.canceled += context => RestartActive = false;

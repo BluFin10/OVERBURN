@@ -607,10 +607,8 @@ MonoBehaviour:
   gravity: -60
   moveSpeed: 10
   jumpForce: 25
-  dashPower: 40
-  dashDrag: 5
-  chargeRate: 5
-  maxDashPower: 100
+  dashPower: 70
+  dashDrag: 20
 --- !u!143 &1585486096
 CharacterController:
   m_ObjectHideFlags: 0
