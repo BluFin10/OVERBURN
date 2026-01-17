@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 public class PlayerController : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float dashDrag = 20f;
     [SerializeField] private float chargeRate = 1f;
     [SerializeField] private float maxDashPower = 50f;
+    [SerializeField] private float slowDeteriorate = .35f;
     
     private Vector3 _velocity;
     private Vector3 _velocityX;
@@ -25,7 +27,11 @@ public class PlayerController : MonoBehaviour
 
     private float _currentSlow = 1f;
 
+    private float i;
+
     private bool _isGrounded;
+    
+    
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -62,12 +68,18 @@ public class PlayerController : MonoBehaviour
 
         if (_isGrounded)
         {
-            _verticalVelocity = -2f; // Slight downward force to keep grounded
+            _verticalVelocity = -5f; // Slight downward force to keep grounded
             _input.DashConsumed = false;
-            dashPower = 40f;
+            dashPower = 30f;
             _input.DashFire = false;
             _input.DashActive = false;
             _currentSlow = 1f;
+            i = 0;
+            dashDrag = 10;
+        }
+        else
+        {
+            dashDrag = 2.5f;
         }
 
         // 2. Jumping
@@ -83,8 +95,10 @@ public class PlayerController : MonoBehaviour
             dashPower += chargeRate * Time.deltaTime;
             // Clamp it so they can't charge to infinity
             dashPower = Mathf.Clamp(dashPower, 0, maxDashPower);
-            _currentSlow = .25f;
-            Debug.Log(dashPower);
+            i += slowDeteriorate * Time.deltaTime;
+            i = Mathf.Clamp(i, 0, .75f);
+            _currentSlow = .25f + i;
+            Debug.Log(_currentSlow);
         }
         // 3. The Dash Burst (The Celeste Moment)
         if (!_isGrounded && _input.DashFire && !_input.DashConsumed)
@@ -104,6 +118,7 @@ public class PlayerController : MonoBehaviour
                 _verticalVelocity = dashDir.y * (dashPower * 0.5f);
             }
 
+            i = 0;
             _currentSlow = 1f;
             _input.DashActive = false;
             _input.DashFire = false;
