@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float chargeRate = 1f;
     [SerializeField] private float maxDashPower = 50f;
     [SerializeField] private float slowDeteriorate = .35f;
+    [SerializeField] private float slowBuild = 2f;
     
     private Vector3 _velocity;
     private Vector3 _velocityX;
@@ -30,7 +31,8 @@ public class PlayerController : MonoBehaviour
     private float i;
 
     private bool _isGrounded;
-    
+
+    private bool slowBuilt;
     
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -73,13 +75,14 @@ public class PlayerController : MonoBehaviour
             dashPower = 30f;
             _input.DashFire = false;
             _input.DashActive = false;
+            slowBuilt = false;
             _currentSlow = 1f;
-            i = 0;
-            dashDrag = 10;
+            i = .75f;
+            dashDrag = 20;
         }
         else
         {
-            dashDrag = 2.5f;
+            dashDrag = 1.75f;
         }
 
         // 2. Jumping
@@ -95,7 +98,20 @@ public class PlayerController : MonoBehaviour
             dashPower += chargeRate * Time.deltaTime;
             // Clamp it so they can't charge to infinity
             dashPower = Mathf.Clamp(dashPower, 0, maxDashPower);
-            i += slowDeteriorate * Time.deltaTime;
+            if (!slowBuilt)
+            {
+                Debug.Log(("fired"));
+                i -= slowBuild * Time.deltaTime;
+                if (i <= 0)
+                {
+                    slowBuilt = true;
+                }
+            }
+
+            if (slowBuilt)
+            {
+                i += slowDeteriorate * Time.deltaTime; 
+            }
             i = Mathf.Clamp(i, 0, .75f);
             _currentSlow = .25f + i;
             Debug.Log(_currentSlow);
