@@ -1,149 +1,152 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 public class PlayerController : MonoBehaviour
 {
-
     private InputManager _input;
     private CharacterController _controller;
 
+    [Header("Movement")]
     [SerializeField] private float gravity = -20f;
     [SerializeField] private float moveSpeed = 5;
     [SerializeField] private float jumpForce = 7f;
-    [SerializeField] private float dashPower = 10f;
-    [SerializeField] private float dashDrag = 20f;
-    [SerializeField] private float chargeRate = 1f;
+    [SerializeField] private float groundFriction = 20f;
+    [SerializeField] private float airFriction = 2f;
+
+    [Header("Dash Settings")]
+    [SerializeField] private float minDashPower = 20f;
     [SerializeField] private float maxDashPower = 50f;
-    [SerializeField] private float slowDeteriorate = .35f;
-    [SerializeField] private float slowBuild = 2f;
+    [SerializeField] private float chargeRate = 60f;
+    [SerializeField] private float maxPowerHoldTime = .25f;
     
-    private Vector3 _velocity;
-    private Vector3 _velocityX;
-    private Vector3 _movementDir;
+
     private Vector3 _dashVelocity;
-    private Vector3 dashDir;
-
+    private Vector3 _horizontalVelocity;
     private float _verticalVelocity;
-
+    private float _dashPower;
     private float _currentSlow = 1f;
-
-    private float i;
-
+    private float _currentHoldTime;
     private bool _isGrounded;
+    private bool _maxCharge;
 
-    private bool slowBuilt;
-    
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         _input = InputManager.instance;
         _controller = GetComponent<CharacterController>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         _isGrounded = _controller.isGrounded;
 
         HandleMovement(Time.deltaTime);
+        HandleDash(Time.deltaTime);
 
-        // Combine all velocities: 
-        // (A/D Input) + (Gravity/Jump) + (The Dash Burst)
-        Vector3 totalMove = (_input.Move.x * transform.right * moveSpeed) +
-                            (_verticalVelocity * transform.up) +
-                            _dashVelocity;
+        // --- CONTEXTUAL FRICTION ---
+        // 1. Determine active friction
+        float activeDrag = _isGrounded ? groundFriction : airFriction;
 
-        _controller.Move(totalMove * (_currentSlow * Time.deltaTime));
+        // 2. Calculate Target Input Velocity
+        Vector3 targetInputVelocity = _input.Move.x * transform.right * moveSpeed;
 
-        // Apply Drag to the dash velocity so it slows down over time
-        // This gives it that "burst then drift" Celeste feeling
-        _dashVelocity = Vector3.Lerp(_dashVelocity, Vector3.zero, dashDrag * Time.deltaTime);
+        // 3. Move current velocity toward target input
+        // This makes starting/stopping feel "weighty" rather than instant
+        _horizontalVelocity = Vector3.Lerp(_horizontalVelocity, targetInputVelocity, horizontalAcceleration * Time.deltaTime);
+
+        // 4. Apply Drag to the Dash specifically, OR the whole horizontal vector
+        // To make the dash feel separate but still affected by air/ground:
+        _dashVelocity = Vector3.Lerp(_dashVelocity, Vector3.zero, activeDrag * Time.deltaTime);
+
+        // 5. Combine and Move
+        Vector3 finalMotion = (_horizontalVelocity + _dashVelocity + (Vector3.up * _verticalVelocity));
+        _controller.Move(finalMotion * (_currentSlow * Time.deltaTime));
     }
 
     private void HandleMovement(float delta)
     {
-        // 1. Setup Mouse/Ray data
+        if (_isGrounded)
+        {
+            
+            _verticalVelocity = -5f;
+            if (_input.JumpPressed)
+            {
+                _verticalVelocity = jumpForce;
+                _input.JumpPressed = false;
+            }
+        }
+        
+        if (_verticalVelocity > -30f)
+        {
+            _verticalVelocity += gravity * delta;
+        }
+    }
+
+    private void HandleDash(float delta)
+    {
         _input.MousePos = Mouse.current.position.ReadValue();
         _input.DashRay = Camera.main.ScreenPointToRay(_input.MousePos);
 
         if (_isGrounded)
         {
-            _verticalVelocity = -5f; // Slight downward force to keep grounded
+            _horizontalVelocity += _dashVelocity * 0.5f; 
+            _dashVelocity = Vector3.zero;
             _input.DashConsumed = false;
-            dashPower = 30f;
             _input.DashFire = false;
             _input.DashActive = false;
-            slowBuilt = false;
+            _dashPower = minDashPower;
             _currentSlow = 1f;
-            i = .75f;
-            dashDrag = 20;
+            _maxCharge = false;
         }
-        else
+        
+        if (_input.DashActive && !_input.DashConsumed)
         {
-            dashDrag = 1.75f;
-        }
-
-        // 2. Jumping
-        if (_isGrounded && _input.JumpPressed)
-        {
-            _verticalVelocity = jumpForce;
-            _input.JumpPressed = false;
-        }
-
-        if (!_isGrounded && _input.DashActive && !_input.DashConsumed)
-        {
-            // Increases smoothly every single frame
-            dashPower += chargeRate * Time.deltaTime;
-            // Clamp it so they can't charge to infinity
-            dashPower = Mathf.Clamp(dashPower, 0, maxDashPower);
-            if (!slowBuilt)
+            if (!_maxCharge)
             {
-                Debug.Log(("fired"));
-                i -= slowBuild * Time.deltaTime;
-                if (i <= 0)
+                if (_dashPower < maxDashPower)
                 {
-                    slowBuilt = true;
+                    _dashPower += chargeRate * delta;
+                    if (_dashPower >= maxDashPower)
+                    {
+                        _dashPower = maxDashPower;
+                        _currentHoldTime = 0f;
+                    }
+                }
+                else if (_currentHoldTime < maxPowerHoldTime)
+                {
+                    _currentHoldTime += delta;
+                    if (_currentHoldTime >= maxPowerHoldTime) _maxCharge = true;
                 }
             }
-
-            if (slowBuilt)
+            else
             {
-                i += slowDeteriorate * Time.deltaTime; 
+                _dashPower -= chargeRate * delta;
+                if (_dashPower < minDashPower) _dashPower = minDashPower;
             }
-            i = Mathf.Clamp(i, 0, .75f);
-            _currentSlow = .25f + i;
-            Debug.Log(_currentSlow);
+
+            float powerRatio = (_dashPower - minDashPower) / (maxDashPower - minDashPower);
+            _currentSlow = Mathf.Lerp(1.0f, 0.25f, powerRatio);
+            Debug.Log(_dashPower + " Power");
+            Debug.Log(_currentSlow + " Slow");
         }
-        // 3. The Dash Burst (The Celeste Moment)
-        if (!_isGrounded && _input.DashFire && !_input.DashConsumed)
+        
+        if (_input.DashFire && !_input.DashConsumed)
         {
-            // Calculate Direction towards mouse in World Space
-            // We use a plane at the player's Z depth to get an accurate 2D direction
             Plane playerPlane = new Plane(Vector3.forward, transform.position);
             if (playerPlane.Raycast(_input.DashRay, out float distance))
             {
-                Vector3 targetPoint = _input.DashRay.GetPoint(distance); 
-                dashDir = (targetPoint - transform.position).normalized;
+                Vector3 targetPoint = _input.DashRay.GetPoint(distance);
+                Vector3 dashDir = (targetPoint - transform.position).normalized;
 
-                // Inject the power!
-                _dashVelocity = dashDir * dashPower;
-
-                // Optional: Zero out vertical velocity on dash for "tighter" control
-                _verticalVelocity = dashDir.y * (dashPower * 0.5f);
+                _dashVelocity = dashDir * _dashPower;
+                _verticalVelocity = dashDir.y * (_dashPower * 0.5f);
             }
 
-            i = 0;
             _currentSlow = 1f;
             _input.DashActive = false;
             _input.DashFire = false;
             _input.DashConsumed = true;
             gravity = -60f;
-        }
-        if (!(_verticalVelocity < -30))
-        {
-            _verticalVelocity += gravity * delta;
+            _maxCharge = false;
         }
     }
 }
