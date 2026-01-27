@@ -7,12 +7,13 @@ public class PlayerController : MonoBehaviour
     private CharacterController _controller;
 
     [Header("Movement")]
-    [SerializeField] private float gravity = -20f;
-    [SerializeField] private float moveSpeed = 5;
-    [SerializeField] private float jumpForce = 7f;
-    [SerializeField] private float groundFriction = 20f;
-    [SerializeField] private float airFriction = 2f;
-
+    [SerializeField] private float gravity = -60f;
+    [SerializeField] private float moveSpeed = 10f;
+    [SerializeField] private float jumpForce = 20f;
+    [Header("Friction & Drag")]
+    [SerializeField] private float groundFriction = 5f; 
+    [SerializeField] private float airFriction = 2f;         
+    [SerializeField] private float horizontalAcceleration = 10f; 
     [Header("Dash Settings")]
     [SerializeField] private float minDashPower = 20f;
     [SerializeField] private float maxDashPower = 50f;
