@@ -8,27 +8,31 @@ public class PlayerController : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] private float gravity = -60f;
-    [SerializeField] private float moveSpeed = 10f;
-    [SerializeField] private float jumpForce = 20f;
+    [SerializeField] private float moveSpeed = 15f;
+    [SerializeField] private float baseJumpForce = 20f;
+    [SerializeField] private float maxJumpForce = 35f;
+    [SerializeField] private float jumpChargeSpeed = 20f;
     [Header("Friction & Drag")]
     [SerializeField] private float groundFriction = 5f; 
     [SerializeField] private float airFriction = 2f;         
     [SerializeField] private float horizontalAcceleration = 10f; 
     [Header("Dash Settings")]
     [SerializeField] private float minDashPower = 20f;
-    [SerializeField] private float maxDashPower = 50f;
-    [SerializeField] private float chargeRate = 60f;
+    [SerializeField] private float maxDashPower = 40f;
+    [SerializeField] private float chargeRate = 40f;
     [SerializeField] private float maxPowerHoldTime = .25f;
     
 
     private Vector3 _dashVelocity;
     private Vector3 _horizontalVelocity;
     private float _verticalVelocity;
+    private float _jumpPower;
     private float _dashPower;
     private float _currentSlow = 1f;
     private float _currentHoldTime;
     private bool _isGrounded;
     private bool _maxCharge;
+    private bool _jumpConsumed;
 
     void Start()
     {
@@ -67,12 +71,44 @@ public class PlayerController : MonoBehaviour
     {
         if (_isGrounded)
         {
-            
+            _jumpConsumed = false;
             _verticalVelocity = -5f;
-            if (_input.JumpPressed)
+            if (_input.JumpPressed && !_jumpConsumed)
             {
-                _verticalVelocity = jumpForce;
+                if (_jumpPower < baseJumpForce)
+                {
+                    _jumpPower = baseJumpForce;
+                }
+                if (_jumpPower <= maxJumpForce)
+                {
+                    _jumpPower += jumpChargeSpeed*delta;
+                }
+                else
+                {
+                    _jumpPower = maxJumpForce;   
+                }
+                float powerRatio = (_jumpPower - baseJumpForce) / (maxJumpForce - baseJumpForce);
+                _currentSlow = Mathf.Lerp(1.0f, .05f, powerRatio);
+                Debug.Log(_jumpPower+" power");
+                Debug.Log(_currentSlow+" slow");
+            }
+
+            if (_input.JumpFire && !_jumpConsumed)
+            {
                 _input.JumpPressed = false;
+                _verticalVelocity = _jumpPower;
+                _currentSlow = 1;
+                _jumpPower = baseJumpForce;
+                _jumpConsumed = true;
+                _input.JumpFire = false;
+            }
+        }
+        else
+        {
+            _jumpPower = baseJumpForce;
+            if (!_input.DashActive)
+            {
+                _currentSlow = 1;
             }
         }
         
@@ -95,7 +131,6 @@ public class PlayerController : MonoBehaviour
             _input.DashFire = false;
             _input.DashActive = false;
             _dashPower = minDashPower;
-            _currentSlow = 1f;
             _maxCharge = false;
         }
         
