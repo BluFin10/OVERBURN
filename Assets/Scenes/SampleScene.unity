@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 330585545}
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
+  - component: {fileID: 330585548}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -256,6 +257,23 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &330585548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330585543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c4a8b830d1a01847b0ca3695f292316, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraContoller
+  smoothSpeed: 0.5
+  zOffset: 10
+  mouseInfluence: 1
+  baseLookDistance: 0.75
+  dashLookDist: 1.5
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -717,12 +735,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   gravity: -60
   moveSpeed: 10
-  jumpForce: 25
-  dashPower: 40
-  dashDrag: 2
-  chargeRate: 5
-  maxDashPower: 100
-  slowDeteriorate: 0.35
+  baseJumpForce: 20
+  maxJumpForce: 35
+  jumpChargeSpeed: 20
+  groundFriction: 5
+  airFriction: 2
+  horizontalAcceleration: 10
+  minDashPower: 20
+  maxDashPower: 50
+  chargeRate: 50
+  maxPowerHoldTime: 0.25
+  dashPower: 0
+  dashActive: 0
 --- !u!143 &1585486096
 CharacterController:
   m_ObjectHideFlags: 0

@@ -17,9 +17,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float airFriction = 2f;         
     [SerializeField] private float horizontalAcceleration = 10f; 
     [Header("Dash Settings")]
-    [SerializeField] private float minDashPower = 20f;
-    [SerializeField] private float maxDashPower = 40f;
-    [SerializeField] private float chargeRate = 40f;
+    [SerializeField] public float minDashPower = 20f;
+    [SerializeField] public float maxDashPower = 50f;
+    [SerializeField] private float chargeRate = 50f;
     [SerializeField] private float maxPowerHoldTime = .25f;
     
 
@@ -27,7 +27,8 @@ public class PlayerController : MonoBehaviour
     private Vector3 _horizontalVelocity;
     private float _verticalVelocity;
     private float _jumpPower;
-    private float _dashPower;
+    public float dashPower;
+    public bool dashActive;
     private float _currentSlow = 1f;
     private float _currentHoldTime;
     private bool _isGrounded;
@@ -110,6 +111,10 @@ public class PlayerController : MonoBehaviour
             {
                 _currentSlow = 1;
             }
+            
+            _jumpConsumed = true;
+            _input.JumpFire = false;
+            _input.JumpPressed = false;
         }
         
         if (_verticalVelocity > -30f)
@@ -130,20 +135,21 @@ public class PlayerController : MonoBehaviour
             _input.DashConsumed = false;
             _input.DashFire = false;
             _input.DashActive = false;
-            _dashPower = minDashPower;
+            dashPower = minDashPower;
             _maxCharge = false;
         }
         
         if (_input.DashActive && !_input.DashConsumed)
         {
+            dashActive = true;
             if (!_maxCharge)
             {
-                if (_dashPower < maxDashPower)
+                if (dashPower < maxDashPower)
                 {
-                    _dashPower += chargeRate * delta;
-                    if (_dashPower >= maxDashPower)
+                    dashPower += chargeRate * delta;
+                    if (dashPower >= maxDashPower)
                     {
-                        _dashPower = maxDashPower;
+                        dashPower = maxDashPower;
                         _currentHoldTime = 0f;
                     }
                 }
@@ -155,13 +161,13 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                _dashPower -= chargeRate * delta;
-                if (_dashPower < minDashPower) _dashPower = minDashPower;
+                dashPower -= chargeRate * delta;
+                if (dashPower < minDashPower) dashPower = minDashPower;
             }
 
-            float powerRatio = (_dashPower - minDashPower) / (maxDashPower - minDashPower);
+            float powerRatio = (dashPower - minDashPower) / (maxDashPower - minDashPower);
             _currentSlow = Mathf.Lerp(1.0f, 0.25f, powerRatio);
-            Debug.Log(_dashPower + " Power");
+            Debug.Log(dashPower + " Power");
             Debug.Log(_currentSlow + " Slow");
         }
         
@@ -173,12 +179,13 @@ public class PlayerController : MonoBehaviour
                 Vector3 targetPoint = _input.DashRay.GetPoint(distance);
                 Vector3 dashDir = (targetPoint - transform.position).normalized;
 
-                _dashVelocity = dashDir * _dashPower;
-                _verticalVelocity = dashDir.y * (_dashPower * 0.5f);
+                _dashVelocity = dashDir * dashPower;
+                _verticalVelocity = dashDir.y * (dashPower * 0.5f);
             }
 
             _currentSlow = 1f;
             _input.DashActive = false;
+            dashActive = false;
             _input.DashFire = false;
             _input.DashConsumed = true;
             gravity = -60f;
