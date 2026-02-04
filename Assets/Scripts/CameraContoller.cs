@@ -6,6 +6,8 @@ public class CameraContoller : MonoBehaviour
 {
     private PlayerController _playerController;
 
+    private InputManager _input;
+
     private Vector3 _targetCamPos;
 
     private Vector3 _mousePos;
@@ -20,15 +22,20 @@ public class CameraContoller : MonoBehaviour
     
     private Vector3 _currentVelocity = Vector3.zero;
 
+    private Vector3 _movementOffset;
+
     private float _maxLookDistance;
 
     private float _currentMaxDist;
 
-    [SerializeField] private float smoothSpeed = 0.5f;
+    [SerializeField] private float smoothSpeed = 0.66f;
     [SerializeField] private float zOffset = 10;
     [SerializeField] private float mouseInfluence = 1;
     [SerializeField] private float baseLookDistance = .75f;
     [SerializeField] private float dashLookDist = 1.5f;
+    [SerializeField] private float jumpXMovement = 2;
+    [SerializeField] private float jumpYMovement = 2;
+    [SerializeField] private float jumpOffsetWeight = 1.5f;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -39,6 +46,7 @@ public class CameraContoller : MonoBehaviour
     private void Awake()
     {
         _playerController = FindAnyObjectByType<PlayerController>();
+        _input = FindFirstObjectByType<InputManager>();
         _cam = GetComponent<Camera>();
         _camTransform = _cam.transform;
     }
@@ -78,7 +86,18 @@ public class CameraContoller : MonoBehaviour
         cameraOffset = Vector3.ClampMagnitude(cameraOffset, _currentMaxDist);
 
         // 4. Set Target Position
-        _targetCamPos = _playerPos + cameraOffset;
+        // Create an offset based on input direction
+        _movementOffset.x = _input.Move.x * jumpXMovement;
+        _movementOffset.y = _input.Move.y * jumpYMovement;
+
+        // We multiply by a weight so it doesn't completely kick the player off-screen
+        if (_input.JumpPressed)
+        {
+            _movementOffset *= jumpOffsetWeight; 
+        }
+            
+        _targetCamPos = _playerPos + cameraOffset + _movementOffset;
+        
         _targetCamPos.z = _playerPos.z - zOffset;
 
         // 5. APPLY MOVEMENT: SmoothDamp is much better for high-speed tracking

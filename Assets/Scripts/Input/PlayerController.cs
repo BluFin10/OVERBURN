@@ -12,6 +12,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float baseJumpForce = 20f;
     [SerializeField] private float maxJumpForce = 35f;
     [SerializeField] private float jumpChargeSpeed = 20f;
+    [SerializeField] private float fastFallMultiplier = 1.5f;
+    [SerializeField] private float fastFallLimit = -50f;
     [Header("Friction & Drag")]
     [SerializeField] private float groundFriction = 5f; 
     [SerializeField] private float airFriction = 2f;         
@@ -34,6 +36,7 @@ public class PlayerController : MonoBehaviour
     private bool _isGrounded;
     private bool _maxCharge;
     private bool _jumpConsumed;
+    private float _currentFallModifier = 1f;
 
     void Start()
     {
@@ -86,7 +89,7 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    _jumpPower = maxJumpForce;   
+                    _jumpPower = maxJumpForce;
                 }
                 float powerRatio = (_jumpPower - baseJumpForce) / (maxJumpForce - baseJumpForce);
                 _currentSlow = Mathf.Lerp(1.0f, .05f, powerRatio);
@@ -110,13 +113,19 @@ public class PlayerController : MonoBehaviour
             if (!_input.DashActive)
             {
                 _currentSlow = 1;
-            }
-            
+            } 
             _jumpConsumed = true;
             _input.JumpFire = false;
             _input.JumpPressed = false;
         }
-        
+
+        if (_input.Move.y < -0.1)
+        {
+            if (_verticalVelocity > fastFallLimit)
+            {
+                _verticalVelocity += gravity * fastFallMultiplier * delta;
+            }
+        }
         if (_verticalVelocity > -30f)
         {
             _verticalVelocity += gravity * delta;
