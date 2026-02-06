@@ -270,12 +270,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraContoller
   smoothSpeed: 0.66
-  zOffset: 10
+  zOffset: 15
   mouseInfluence: 1
   baseLookDistance: 0.75
   dashLookDist: 1.5
-  jumpXMovement: 2
-  jumpYMovement: 2
+  jumpXMovement: 1
+  jumpYMovement: 1
   jumpOffsetWeight: 1.5
 --- !u!1 &410087039
 GameObject:
@@ -741,6 +741,8 @@ MonoBehaviour:
   baseJumpForce: 20
   maxJumpForce: 35
   jumpChargeSpeed: 20
+  fastFallMultiplier: 1.5
+  fastFallLimit: -50
   groundFriction: 5
   airFriction: 2
   horizontalAcceleration: 10
