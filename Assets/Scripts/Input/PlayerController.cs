@@ -36,7 +36,10 @@ public class PlayerController : MonoBehaviour
     private bool _isGrounded;
     public bool maxCharge;
     private bool _jumpConsumed;
+    private bool _isFastFalling;
 
+    private Collider _ignoredPlatform;
+    
     void Start()
     {
         _input = InputManager.instance;
@@ -46,6 +49,22 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         _isGrounded = _controller.isGrounded;
+        
+        if (_ignoredPlatform != null)
+        {
+            if (!_controller.bounds.Intersects(_ignoredPlatform.bounds))
+            {
+                if (_verticalVelocity <= 0)
+                {
+                    Physics.IgnoreCollision(_controller, _ignoredPlatform, false);
+                    _ignoredPlatform = null;
+                }
+            }
+            else
+            {
+                Physics.IgnoreCollision(_controller,_ignoredPlatform,true);
+            }
+        }
 
         HandleMovement(Time.deltaTime);
         HandleDash(Time.deltaTime);
@@ -66,8 +85,22 @@ public class PlayerController : MonoBehaviour
     {
         if (_isGrounded)
         {
+            if (_input.Move.y < -0.1f)
+            {
+                RaycastHit hit;
+                if (Physics.Raycast(transform.position, Vector3.down, out hit, _controller.height / 2 + 0.1f))
+                {
+                    if (hit.collider.CompareTag("Platform"))
+                    {
+                        Physics.IgnoreCollision(_controller, hit.collider, true);
+                        _ignoredPlatform = hit.collider;
+                        
+                        return; // Skip the rest, don't reset to -5f
+                    }
+                }
+            }
             _jumpConsumed = false;
-            _verticalVelocity = -5f;
+                _verticalVelocity = -5f; 
             if (_input.JumpPressed && !_jumpConsumed)
             {
                 if (_jumpPower < baseJumpForce)
@@ -107,10 +140,9 @@ public class PlayerController : MonoBehaviour
             _input.JumpFire = false;
             _input.JumpPressed = false;
         }
-
-        bool isFastFalling = _input.Move.y < -0.1f;
-        float gravityMultiplier = isFastFalling ? fastFallMultiplier : 1f;
-        float terminalVelocity = isFastFalling ? fastFallLimit : -30f;
+        _isFastFalling = _input.Move.y < -0.1f;
+        float gravityMultiplier = _isFastFalling ? fastFallMultiplier : 1f;
+        float terminalVelocity = _isFastFalling ? fastFallLimit : -30f;
     
         if (_verticalVelocity > terminalVelocity)
         {
@@ -183,6 +215,27 @@ public class PlayerController : MonoBehaviour
             _input.DashConsumed = true;
             gravity = -60f;
             maxCharge = false;
+        }
+    }
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.gameObject.CompareTag("Platform"))
+        {
+            if (_verticalVelocity > 0 || hit.point.y > transform.position.y)
+            {
+                Physics.IgnoreCollision(_controller, hit.collider, true);
+                _ignoredPlatform = hit.collider;
+            }
+            else
+            {
+                Physics.IgnoreCollision(_controller, hit.collider, false);
+                _ignoredPlatform = null;
+            }
+            if (_isFastFalling)
+            {
+                Physics.IgnoreCollision(_controller, hit.collider, true);
+                _ignoredPlatform = hit.collider;
+            }
         }
     }
 }

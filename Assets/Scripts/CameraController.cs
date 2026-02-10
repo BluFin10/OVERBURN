@@ -124,6 +124,5 @@ public class CameraController : MonoBehaviour
             ref _currentVelocity, 
             _smoothSpeed 
         );
-        Debug.Log(_targetCamPos);
     }
 }
