@@ -29,9 +29,9 @@ public class CameraController : MonoBehaviour
     private float _currentMaxDist;
 
     [SerializeField] private float baseSmoothSpeed = 0.66f;
-    [SerializeField] private float baseZOffset = 15;
+    [SerializeField] private float baseZOffset = 25;
     [SerializeField] private float dashZOffset = 10;
-    [SerializeField] private float jumpZOffset = 12;
+    [SerializeField] private float jumpZOffset = 20;
     [SerializeField] private float mouseInfluence = 1;
     [SerializeField] private float baseLookDistance = .75f;
     [SerializeField] private float dashLookDist = 1.5f;

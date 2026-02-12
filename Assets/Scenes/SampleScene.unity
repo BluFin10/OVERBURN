@@ -825,9 +825,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraContoller
   baseSmoothSpeed: 0.66
-  baseZOffset: 15
+  baseZOffset: 25
   dashZOffset: 10
-  jumpZOffset: 12
+  jumpZOffset: 20
   mouseInfluence: 1
   baseLookDistance: 0.75
   dashLookDist: 1.5
@@ -2070,8 +2070,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd08488c54b509a40a64dcfb99fed374, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  gravity: -60
-  moveSpeed: 10
+  gravity: -50
+  moveSpeed: 15
   baseJumpForce: 20
   maxJumpForce: 35
   jumpChargeSpeed: 20
@@ -2079,7 +2079,7 @@ MonoBehaviour:
   fastFallLimit: -50
   groundFriction: 5
   airFriction: 2
-  horizontalAcceleration: 10
+  horizontalAcceleration: 3
   minDashPower: 20
   maxDashPower: 50
   chargeRate: 50

@@ -7,17 +7,19 @@ public class PlayerController : MonoBehaviour
     private CharacterController _controller;
 
     [Header("Movement")]
-    [SerializeField] private float gravity = -60f;
+    [SerializeField] private float gravity = -50f;
     [SerializeField] private float moveSpeed = 15f;
     [SerializeField] private float baseJumpForce = 20f;
     [SerializeField] private float maxJumpForce = 35f;
     [SerializeField] private float jumpChargeSpeed = 20f;
     [SerializeField] private float fastFallMultiplier = 1.1f;
     [SerializeField] private float fastFallLimit = -50f;
+    [SerializeField] private float coyoteTime = 0.15f;
+    [SerializeField] private float jumpBuffer = 0.15f;
     [Header("Friction & Drag")]
     [SerializeField] private float groundFriction = 5f; 
     [SerializeField] private float airFriction = 2f;         
-    [SerializeField] private float horizontalAcceleration = 10f; 
+    [SerializeField] private float horizontalAcceleration = 3f; 
     [Header("Dash Settings")]
     [SerializeField] public float minDashPower = 20f;
     [SerializeField] public float maxDashPower = 50f;
@@ -37,6 +39,8 @@ public class PlayerController : MonoBehaviour
     public bool maxCharge;
     private bool _jumpConsumed;
     private bool _isFastFalling;
+    private float _timeSinceGrounded;
+    private float _jumpBufferCounter;
 
     private Collider _ignoredPlatform;
     
@@ -85,6 +89,7 @@ public class PlayerController : MonoBehaviour
     {
         if (_isGrounded)
         {
+            _timeSinceGrounded = 0f;
             if (_input.Move.y < -0.1f)
             {
                 RaycastHit hit;
@@ -94,32 +99,50 @@ public class PlayerController : MonoBehaviour
                     {
                         Physics.IgnoreCollision(_controller, hit.collider, true);
                         _ignoredPlatform = hit.collider;
-                        
                         return; // Skip the rest, don't reset to -5f
                     }
                 }
             }
             _jumpConsumed = false;
                 _verticalVelocity = -5f; 
+        }
+        else
+        {
+            if (_input.JumpFire)
+            {
+                _jumpBufferCounter = jumpBuffer;
+                _input.JumpFire = false;
+            }
+
+            _jumpBufferCounter -= Time.deltaTime;
+            _timeSinceGrounded += Time.deltaTime;
+            _jumpPower = baseJumpForce;
+            Debug.Log(_timeSinceGrounded);
+        }
+
+        if (_timeSinceGrounded < coyoteTime)
+        {
             if (_input.JumpPressed && !_jumpConsumed)
             {
                 if (_jumpPower < baseJumpForce)
                 {
                     _jumpPower = baseJumpForce;
                 }
+
                 if (_jumpPower <= maxJumpForce)
                 {
-                    _jumpPower += jumpChargeSpeed*delta;
+                    _jumpPower += jumpChargeSpeed * delta;
                 }
                 else
                 {
                     _jumpPower = maxJumpForce;
                 }
+
                 float powerRatio = (_jumpPower - baseJumpForce) / (maxJumpForce - baseJumpForce);
                 _currentSlow = Mathf.Lerp(1.0f, .05f, powerRatio);
             }
 
-            if (_input.JumpFire && !_jumpConsumed)
+            if (_input.JumpFire && !_jumpConsumed || _jumpBufferCounter >= 0)
             {
                 _input.JumpPressed = false;
                 _verticalVelocity = _jumpPower;
@@ -131,7 +154,6 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            _jumpPower = baseJumpForce;
             if (!_input.DashActive)
             {
                 _currentSlow = 1;
@@ -140,6 +162,7 @@ public class PlayerController : MonoBehaviour
             _input.JumpFire = false;
             _input.JumpPressed = false;
         }
+
         _isFastFalling = _input.Move.y < -0.1f;
         float gravityMultiplier = _isFastFalling ? fastFallMultiplier : 1f;
         float terminalVelocity = _isFastFalling ? fastFallLimit : -30f;
@@ -213,7 +236,6 @@ public class PlayerController : MonoBehaviour
             dashActive = false;
             _input.DashFire = false;
             _input.DashConsumed = true;
-            gravity = -60f;
             maxCharge = false;
         }
     }
