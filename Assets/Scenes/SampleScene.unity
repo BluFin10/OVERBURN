@@ -563,6 +563,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &258408002
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 258408004}
+  - component: {fileID: 258408003}
+  m_Layer: 0
+  m_Name: LevelGenerator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &258408003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 258408002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf325d1cc18e7a74ba01d7f06ebd57e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LevelGenerator
+  platformRules: []
+  despawnDist: 10
+--- !u!4 &258408004
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 258408002}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -48.23216, y: 0, z: 90.7238}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &293026130
 GameObject:
   m_ObjectHideFlags: 0
@@ -2077,6 +2123,8 @@ MonoBehaviour:
   jumpChargeSpeed: 20
   fastFallMultiplier: 1.5
   fastFallLimit: -50
+  coyoteTime: 0.15
+  jumpBuffer: 0.15
   groundFriction: 5
   airFriction: 2
   horizontalAcceleration: 3
@@ -2564,6 +2612,7 @@ SceneRoots:
   - {fileID: 832575519}
   - {fileID: 1585486094}
   - {fileID: 1035369538}
+  - {fileID: 258408004}
   - {fileID: 1785136204}
   - {fileID: 336975582}
   - {fileID: 530820901}
