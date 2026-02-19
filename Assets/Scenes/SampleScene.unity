@@ -594,7 +594,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelGenerator
   platformRules:
   - prefab: {fileID: 2937133283459571313, guid: f90bdbc55d5ef4d47bd3153ec178576d, type: 3}
-    startPos: {fileID: 0}
+    spawnPos: {fileID: 0}
     endPos: {fileID: 0}
     xRange: {x: 0, y: 0}
     yRange: {x: 0, y: 0}
@@ -1834,13 +1834,35 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1201214709589522899, guid: f90bdbc55d5ef4d47bd3153ec178576d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1858588008}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2937133283459571313, guid: f90bdbc55d5ef4d47bd3153ec178576d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1163306592}
   m_SourcePrefab: {fileID: 100100000, guid: f90bdbc55d5ef4d47bd3153ec178576d, type: 3}
 --- !u!4 &1039790593 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1201214709589522899, guid: f90bdbc55d5ef4d47bd3153ec178576d, type: 3}
   m_PrefabInstance: {fileID: 1039790592}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1163306591 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2937133283459571313, guid: f90bdbc55d5ef4d47bd3153ec178576d, type: 3}
+  m_PrefabInstance: {fileID: 1039790592}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1163306592
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1163306591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed0ad7aa283cd0946af9afc2a1af66b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChunkData
+  startPos: {fileID: 1274140679}
+  endPos: {fileID: 1858588008}
 --- !u!1 &1274140678
 GameObject:
   m_ObjectHideFlags: 0
