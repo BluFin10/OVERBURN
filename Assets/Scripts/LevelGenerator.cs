@@ -12,9 +12,9 @@ public class LevelGenerator : MonoBehaviour
     [System.Serializable]
     public struct PlatformRule
     {
+        
         public GameObject prefab;
-        public GameObject spawnPos;
-        public GameObject endPos;
+        
         public Vector2 xRange;
         public Vector2 yRange;
         public float spawnProb;
@@ -22,8 +22,12 @@ public class LevelGenerator : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        _playerController = FindFirstObjectByType<PlayerController>();
         PlatformRule rule = PickRule();
-        // gameObject p = Instantiate(rule.prefab, )
+        GameObject chunk = Instantiate(rule.prefab, new Vector3(0, 0, _playerController.transform.position.z), Quaternion.identity);
+        _activePlatforms.Add(chunk);
+        Debug.Log("started");
+        Debug.Log(_playerController.transform.position.z);
     }
 
     // Update is called once per frame
