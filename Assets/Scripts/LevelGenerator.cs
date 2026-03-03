@@ -5,14 +5,13 @@ public class LevelGenerator : MonoBehaviour
 {
     [SerializeField] private List<PlatformRule> platformRules;
     [SerializeField] private float despawnDist = 10f;
-    [SerializeField] private float spawnDist = 10f;
+    [SerializeField] private float spawnDist = 50f;
 
     private PlayerController _playerController;
     private List<GameObject> _activePlatforms = new List<GameObject>();
     [System.Serializable]
     public struct PlatformRule
     {
-        
         public GameObject prefab;
         
         public Vector2 xRange;
@@ -24,16 +23,25 @@ public class LevelGenerator : MonoBehaviour
     {
         _playerController = FindFirstObjectByType<PlayerController>();
         PlatformRule rule = PickRule();
-        GameObject chunk = Instantiate(rule.prefab, new Vector3(0, 0, _playerController.transform.position.z), Quaternion.identity);
+        Vector3 spawnPos = new Vector3(0, 0, _playerController.transform.position.z);
+        GameObject chunk = Instantiate(rule.prefab, spawnPos, Quaternion.identity);
         _activePlatforms.Add(chunk);
-        Debug.Log("started");
-        Debug.Log(_playerController.transform.position.z);
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        ChunkData highestChunk = _activePlatforms[^1].GetComponent<ChunkData>();
+        if (_playerController.transform.position.y >= highestChunk.endPos.position.y - spawnDist)
+        {
+            SpawnNext();
+        }
+        ChunkData lowestChunk = _activePlatforms[0].GetComponent<ChunkData>();
+        if (_activePlatforms[0].transform.position.y < _playerController.transform.position.y - despawnDist)
+        {
+            Destroy(_activePlatforms[0]);
+            _activePlatforms.RemoveAt(0);
+        }
     }
 
     private PlatformRule PickRule()
@@ -49,5 +57,14 @@ public class LevelGenerator : MonoBehaviour
             if (roll <= cumulative) return r;
         }
         return platformRules[^1];
+    }
+    private void SpawnNext()
+    {
+        ChunkData lastChunk = _activePlatforms[^1].GetComponent<ChunkData>();
+        Vector3 spawnPos = lastChunk.endPos.position;
+
+        PlatformRule rule = PickRule();
+        GameObject chunk = Instantiate(rule.prefab, spawnPos, Quaternion.identity);
+        _activePlatforms.Add(chunk);
     }
 }

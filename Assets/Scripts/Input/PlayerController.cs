@@ -117,7 +117,6 @@ public class PlayerController : MonoBehaviour
             _jumpBufferCounter -= Time.deltaTime;
             _timeSinceGrounded += Time.deltaTime;
             _jumpPower = baseJumpForce;
-            Debug.Log(_timeSinceGrounded);
         }
 
         if (_timeSinceGrounded < coyoteTime)
