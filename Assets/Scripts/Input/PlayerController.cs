@@ -19,7 +19,8 @@ public class PlayerController : MonoBehaviour
     [Header("Friction & Drag")]
     [SerializeField] private float groundFriction = 5f; 
     [SerializeField] private float airFriction = 2f;         
-    [SerializeField] private float horizontalAcceleration = 3f; 
+    [SerializeField] private float horizontalAcceleration = 3f;
+    [SerializeField] private float normalTerminalVelocity = -50f;
     [Header("Dash Settings")]
     [SerializeField] public float minDashPower = 20f;
     [SerializeField] public float maxDashPower = 50f;
@@ -164,7 +165,7 @@ public class PlayerController : MonoBehaviour
 
         _isFastFalling = _input.Move.y < -0.1f;
         float gravityMultiplier = _isFastFalling ? fastFallMultiplier : 1f;
-        float terminalVelocity = _isFastFalling ? fastFallLimit : -30f;
+        float terminalVelocity = _isFastFalling ? fastFallLimit : normalTerminalVelocity;
     
         if (_verticalVelocity > terminalVelocity)
         {
