@@ -21,6 +21,7 @@ public class LevelGenerator : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        Random.InitState(System.DateTime.Now.Millisecond);
         _playerController = FindFirstObjectByType<PlayerController>();
         PlatformRule rule = PickRule();
         Vector3 spawnPos = new Vector3(0, 0, _playerController.transform.position.z);
@@ -61,10 +62,18 @@ public class LevelGenerator : MonoBehaviour
     private void SpawnNext()
     {
         ChunkData lastChunk = _activePlatforms[^1].GetComponent<ChunkData>();
+
         Vector3 spawnPos = lastChunk.endPos.position;
+        spawnPos.x = _playerController.transform.position.x;
 
         PlatformRule rule = PickRule();
-        GameObject chunk = Instantiate(rule.prefab, spawnPos, Quaternion.identity);
+        GameObject chunk = Instantiate(rule.prefab, Vector3.zero, Quaternion.identity);
+
+        ChunkData newChunk = chunk.GetComponent<ChunkData>();
+        Vector3 c = spawnPos - newChunk.startPos.localPosition;
+        chunk.transform.position = new Vector3(c.x, c.y, 0f);
+       
+
         _activePlatforms.Add(chunk);
     }
 }

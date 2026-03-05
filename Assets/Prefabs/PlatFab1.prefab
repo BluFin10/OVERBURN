@@ -162,7 +162,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed0ad7aa283cd0946af9afc2a1af66b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChunkData
-  startPos: {fileID: 1201214709589522899}
+  startPos: {fileID: 0}
   endPos: {fileID: 0}
 --- !u!1 &3681730459280536325
 GameObject:

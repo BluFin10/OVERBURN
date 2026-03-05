@@ -84,6 +84,7 @@ public class PlayerController : MonoBehaviour
         
         Vector3 finalMotion = (_horizontalVelocity + _dashVelocity + (Vector3.up * _verticalVelocity));
         _controller.Move(finalMotion * (_currentSlow * Time.deltaTime));
+        transform.position = new Vector3(transform.position.x, transform.position.y, 0f);
     }
 
     private void HandleMovement(float delta)
