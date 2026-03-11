@@ -9,6 +9,7 @@ public class LevelGenerator : MonoBehaviour
 
     private PlayerController _playerController;
     private List<GameObject> _activePlatforms = new List<GameObject>();
+    private int _lastRulePicked = -1;
     [System.Serializable]
     public struct PlatformRule
     {
@@ -49,13 +50,17 @@ public class LevelGenerator : MonoBehaviour
     {
         float total = 0f;
         foreach (var r in platformRules) total += r.spawnProb;
-    
+
         float roll = Random.Range(0f, total);
         float cumulative = 0f;
-        foreach (var r in platformRules)
+        for (int i = 0; i < platformRules.Count; i++)
         {
-            cumulative += r.spawnProb;
-            if (roll <= cumulative) return r;
+            cumulative += platformRules[i].spawnProb;
+            if (roll <= cumulative && i != _lastRulePicked)
+            {
+                _lastRulePicked = i;
+                return platformRules[i];
+            }
         }
         return platformRules[^1];
     }
@@ -69,9 +74,8 @@ public class LevelGenerator : MonoBehaviour
         PlatformRule rule = PickRule();
         GameObject chunk = Instantiate(rule.prefab, Vector3.zero, Quaternion.identity);
 
-        ChunkData newChunk = chunk.GetComponent<ChunkData>();
-        Vector3 c = spawnPos - newChunk.startPos.localPosition;
-        chunk.transform.position = new Vector3(c.x, c.y, 0f);
+        
+        chunk.transform.position = new Vector3(_playerController.transform.position.x, lastChunk.endPos.transform.position.y, 0f);
        
 
         _activePlatforms.Add(chunk);

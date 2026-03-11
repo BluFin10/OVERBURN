@@ -35,8 +35,8 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float mouseInfluence = 1;
     [SerializeField] private float baseLookDistance = .75f;
     [SerializeField] private float dashLookDist = 1.5f;
-    [SerializeField] private float jumpXMovement = 1;
-    [SerializeField] private float jumpYMovement = 1;
+    [SerializeField] private float XMovement = 1;
+    [SerializeField] private float YMovement = 1;
     [SerializeField] private float jumpOffsetWeight = 1.5f;
 
     private float _smoothSpeed;
@@ -84,8 +84,8 @@ public class CameraController : MonoBehaviour
         Vector3 cameraOffset = lookDirection * mouseInfluence;
         cameraOffset = Vector3.ClampMagnitude(cameraOffset, _currentMaxDist);
         
-        _movementOffset.x = _input.Move.x * jumpXMovement;
-        _movementOffset.y = _input.Move.y * jumpYMovement;
+        _movementOffset.x = _input.Move.x * XMovement;
+        _movementOffset.y = _input.Move.y * YMovement;
         
         if (_input.JumpPressed)
         {
