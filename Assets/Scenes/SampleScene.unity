@@ -609,6 +609,30 @@ MonoBehaviour:
     xRange: {x: 0, y: 0}
     yRange: {x: 0, y: 0}
     spawnProb: 3
+  - prefab: {fileID: 7214411165947213330, guid: 1324f10cce7dde741b9b01a2f5b02d7f, type: 3}
+    xRange: {x: 0, y: 0}
+    yRange: {x: 0, y: 0}
+    spawnProb: 3
+  - prefab: {fileID: 5024763977018119639, guid: c95d909f7e27fd4448017fdf9b69bdc2, type: 3}
+    xRange: {x: 0, y: 0}
+    yRange: {x: 0, y: 0}
+    spawnProb: 3
+  - prefab: {fileID: 5628883717765846966, guid: 89687937e10d3774ba2e7902174f4165, type: 3}
+    xRange: {x: 0, y: 0}
+    yRange: {x: 0, y: 0}
+    spawnProb: 3
+  - prefab: {fileID: 6202711841948407001, guid: 23ef0f5eee400b0468f53c22568dae83, type: 3}
+    xRange: {x: 0, y: 0}
+    yRange: {x: 0, y: 0}
+    spawnProb: 3
+  - prefab: {fileID: 8555525209905739850, guid: e6ee3ca21c8a9d9419fc797d083f9f38, type: 3}
+    xRange: {x: 0, y: 0}
+    yRange: {x: 0, y: 0}
+    spawnProb: 3
+  - prefab: {fileID: 3640553570250500092, guid: 488c4e970db907948a204ffaf65455df, type: 3}
+    xRange: {x: 0, y: 0}
+    yRange: {x: 0, y: 0}
+    spawnProb: 3
   despawnDist: 200
   spawnDist: 50
 --- !u!4 &258408004
@@ -894,8 +918,8 @@ MonoBehaviour:
   mouseInfluence: 1
   baseLookDistance: 0.75
   dashLookDist: 1.5
-  jumpXMovement: 1
-  jumpYMovement: 1
+  XMovement: 1
+  YMovement: 1
   jumpOffsetWeight: 1.5
 --- !u!1 &336975578
 GameObject:
