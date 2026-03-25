@@ -261,4 +261,17 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+    public void ResetPlayer(Vector3 spawnPos)
+    {
+        _controller.enabled = false;
+        transform.position = spawnPos;
+        _controller.enabled = true;
+    
+        _horizontalVelocity = Vector3.zero;
+        _dashVelocity = Vector3.zero;
+        _verticalVelocity = 0f;
+        // reset any other state flags you need
+        _isGrounded = true;
+        
+    }
 }

@@ -31,12 +31,18 @@ public class DeathBox : MonoBehaviour
         {
             float newY = Mathf.MoveTowards(transform.position.y, _player.transform.position.y,
                 Mathf.Max(minFollowSpeed, followSpeed) * Time.deltaTime);
-            transform.position = new Vector3(transform.position.x, newY, transform.position.z);
+            transform.position = new Vector3(_player.transform.position.x, newY, _player.transform.position.z);
         }
     }
     private void OnTriggerEnter(Collider other)
     {
         if (other.GetComponent<PlayerController>() != null)
             Debug.Log("dead loser");
+    }
+
+    public void ResetBox()
+    {
+        followSpeed = minFollowSpeed;
+        yOffset = startYOffset;
     }
 }

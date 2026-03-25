@@ -10,6 +10,8 @@ public class LevelGenerator : MonoBehaviour
     private PlayerController _playerController;
     private List<GameObject> _activePlatforms = new List<GameObject>();
     private int _lastRulePicked = -1;
+    private GameObject _startPlat;
+    
     [System.Serializable]
     public struct PlatformRule
     {
@@ -22,12 +24,10 @@ public class LevelGenerator : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        
         Random.InitState(System.DateTime.Now.Millisecond);
         _playerController = FindFirstObjectByType<PlayerController>();
-        PlatformRule rule = PickRule();
-        Vector3 spawnPos = new Vector3(0, 0, _playerController.transform.position.z);
-        GameObject chunk = Instantiate(rule.prefab, spawnPos, Quaternion.identity);
-        _activePlatforms.Add(chunk);
+        ResetLevel(Vector3.zero + new Vector3(0,10,0));
     }
 
     // Update is called once per frame
@@ -75,9 +75,28 @@ public class LevelGenerator : MonoBehaviour
         GameObject chunk = Instantiate(rule.prefab, Vector3.zero, Quaternion.identity);
 
         
-        chunk.transform.position = new Vector3(_playerController.transform.position.x, lastChunk.endPos.transform.position.y, 0f);
+        ChunkData newChunk = chunk.GetComponent<ChunkData>();
+        chunk.transform.position = new Vector3(
+            _playerController.transform.position.x,
+            lastChunk.endPos.position.y - newChunk.startPos.localPosition.y,
+            0f
+        );
        
 
         _activePlatforms.Add(chunk);
+    }
+    public void ResetLevel(Vector3 origin)
+    {
+        foreach (var platform in _activePlatforms)
+            Destroy(platform);
+        _activePlatforms.Clear();
+
+        PlatformRule rule = PickRule();
+        GameObject chunk = Instantiate(rule.prefab, origin, Quaternion.identity);
+        _activePlatforms.Add(chunk);
+
+        GameObject startPlatform = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        startPlatform.transform.localScale = new Vector3(10, 1, 4);
+        startPlatform.transform.position = _playerController.transform.position - new Vector3( 0,_playerController.transform.localScale.y/2,0);
     }
 }
