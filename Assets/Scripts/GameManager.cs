@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
     public Vector3 startPos;
 
     public Vector3 playerStartPos;
+    public float score;
+    private float _highestScore;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -21,18 +23,23 @@ public class GameManager : MonoBehaviour
         
         startPos = Vector3.zero;
         playerStartPos = startPos + new Vector3(0,5,0);
-        
+        ResetLevel();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        score = _playerController.transform.position.y * _heatManager.scoreHeatMult;
+        score = Mathf.Round(score);
+        if (score >= _highestScore)
+        {
+            _highestScore = score;
+        }
     }
 
     public void PlayerDeath()
     {
-        
+        ResetLevel();
     }
 
     public void ResetLevel()
@@ -40,6 +47,8 @@ public class GameManager : MonoBehaviour
         _playerController.ResetPlayer(playerStartPos);
         _levelGenerator.ResetLevel(startPos);
         _deathBox.ResetBox();
-        
+        _heatManager.heat = 0;
+        score = 0;
+        _highestScore = 0;
     }
 }
