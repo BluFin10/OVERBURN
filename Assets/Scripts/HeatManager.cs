@@ -35,6 +35,10 @@ public class HeatManager : MonoBehaviour
     {
         heat += Time.deltaTime;
         _deathBox.followSpeed = _deathBox.minFollowSpeed + heat * deathBoxHeatMult;
+        _playerController.minDashPower = _playerController.startMinDashPower + heat * dashPowerHeatMult;
+        _playerController.maxDashPower = _playerController.startMaxDashPower + heat * dashPowerHeatMult;
+        _playerController.chargeRate = _playerController.minDashChargeRate + heat * dashChargeSpeedHeatMult;
+        
         Debug.Log(heat);
     }
 }

@@ -81,7 +81,7 @@ public class LevelGenerator : MonoBehaviour
         
         ChunkData newChunk = chunk.GetComponent<ChunkData>();
         chunk.transform.position = new Vector3(
-            _playerController.transform.position.x,
+            _playerController.transform.position.x - newChunk.startPos.localPosition.x,
             lastChunk.endPos.position.y - newChunk.startPos.localPosition.y,
             0f
         );

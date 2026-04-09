@@ -23,8 +23,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float normalTerminalVelocity = -50f;
     [Header("Dash Settings")]
     [SerializeField] public float minDashPower = 20f;
+    [SerializeField] public float startMinDashPower = 50f;
     [SerializeField] public float maxDashPower = 50f;
-    [SerializeField] private float chargeRate = 50f;
+    [SerializeField] public float startMaxDashPower = 50f;
+    [SerializeField] public float minDashChargeRate;
+    [SerializeField] public float chargeRate = 50f;
     [SerializeField] private float maxPowerHoldTime = .25f;
     
 
@@ -49,6 +52,9 @@ public class PlayerController : MonoBehaviour
     {
         _input = InputManager.instance;
         _controller = GetComponent<CharacterController>();
+        startMinDashPower = minDashPower;
+        startMaxDashPower = maxDashPower;
+        minDashChargeRate = chargeRate;
     }
 
     void FixedUpdate()
