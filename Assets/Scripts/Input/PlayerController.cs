@@ -8,10 +8,13 @@ public class PlayerController : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] private float gravity = -50f;
-    [SerializeField] private float moveSpeed = 15f;
-    [SerializeField] private float baseJumpForce = 20f;
-    [SerializeField] private float maxJumpForce = 35f;
-    [SerializeField] private float jumpChargeSpeed = 20f;
+    [SerializeField] public float moveSpeed = 15f;
+    [SerializeField] public float baseMoveSpeed = 15f;
+    [SerializeField] public float minBaseJumpForce = 20f;
+    [SerializeField] public float baseJumpForce = 20f;
+    [SerializeField] public float maxJumpForce = 35f;
+    [SerializeField] public float jumpChargeSpeed = 20f;
+    [SerializeField] public float minJumpChargeSpeed = 20f;
     [SerializeField] private float fastFallMultiplier = 1.1f;
     [SerializeField] private float fastFallLimit = -50f;
     [SerializeField] private float coyoteTime = 0.15f;

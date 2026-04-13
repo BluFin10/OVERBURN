@@ -10,6 +10,7 @@ public class HeatManager : MonoBehaviour
     private DeathBox _deathBox;
     private PlayerController _playerController;
     private LevelGenerator _levelGenerator;
+    private GameManager _gameManager;
 
     [SerializeField] private float walkSpeedHeatMult;
     [SerializeField] private float dashPowerHeatMult;
@@ -28,6 +29,7 @@ public class HeatManager : MonoBehaviour
         _deathBox = FindAnyObjectByType<DeathBox>();
         _levelGenerator = FindAnyObjectByType<LevelGenerator>();
         _playerController = FindAnyObjectByType<PlayerController>();
+        _gameManager = FindAnyObjectByType<GameManager>();
     }
 
     // Update is called once per frame
@@ -38,6 +40,12 @@ public class HeatManager : MonoBehaviour
         _playerController.minDashPower = _playerController.startMinDashPower + heat * dashPowerHeatMult;
         _playerController.maxDashPower = _playerController.startMaxDashPower + heat * dashPowerHeatMult;
         _playerController.chargeRate = _playerController.minDashChargeRate + heat * dashChargeSpeedHeatMult;
+        _playerController.baseJumpForce = _playerController.minBaseJumpForce + heat * jumpPowerHeatMult;
+        _playerController.jumpChargeSpeed = _playerController.minJumpChargeSpeed + heat * jumpChargeSpeedHeatMult;
+        _playerController.moveSpeed = _playerController.baseMoveSpeed + heat * walkSpeedHeatMult;
+
+        _gameManager.heatedScore = _gameManager.highestScore * scoreHeatMult;
+        
         
         Debug.Log(heat);
     }

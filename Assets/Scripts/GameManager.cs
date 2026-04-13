@@ -11,7 +11,8 @@ public class GameManager : MonoBehaviour
 
     public Vector3 playerStartPos;
     public float score;
-    private float _highestScore;
+    public float heatedScore;
+    public float highestScore;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -31,9 +32,9 @@ public class GameManager : MonoBehaviour
     {
         score = _playerController.transform.position.y * _heatManager.scoreHeatMult;
         score = Mathf.Round(score);
-        if (score >= _highestScore)
+        if (score >= highestScore)
         {
-            _highestScore = score;
+            highestScore = score;
         }
     }
 
