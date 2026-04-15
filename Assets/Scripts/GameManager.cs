@@ -50,6 +50,6 @@ public class GameManager : MonoBehaviour
         _deathBox.ResetBox();
         _heatManager.heat = 0;
         score = 0;
-        _highestScore = 0;
+        highestScore = 0;
     }
 }
