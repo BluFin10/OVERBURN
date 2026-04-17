@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class HUDManager : MonoBehaviour
 {
@@ -8,14 +9,17 @@ public class HUDManager : MonoBehaviour
 
     private PlayerController _player;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
+    [SerializeField] private Image fillImage;
+
     void Start()
     {
-        
+        _player = FindFirstObjectByType<PlayerController>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        float t = (_player.dashPower - _player.minDashPower) / (_player.maxDashPower - _player.minDashPower);
+        fillImage.fillAmount = t;
     }
 }
+
