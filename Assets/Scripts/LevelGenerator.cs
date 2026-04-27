@@ -3,41 +3,53 @@ using UnityEngine;
 
 public class LevelGenerator : MonoBehaviour
 {
-    [SerializeField] private List<PlatformRule> platformRules;
+    [Header("Generator Settings")] [SerializeField]
+    private List<PlatformRule> platformRules;
+
     [SerializeField] private float despawnDist = 10f;
     [SerializeField] private float spawnDist = 50f;
+
+    [Header("Minimap Settings")] [SerializeField]
+    private Sprite minimapSprite;
+
+    [SerializeField] private Color minimapColor = Color.white;
+    [SerializeField] private string minimapLayerName = "Minimap";
+    [SerializeField] private float iconHeightOffset = 1.0f;
+    [SerializeField] private float iconHorizontalOffset = 1.0f;
+    [SerializeField] private float platformIconHeight = 1.0f;
+    
 
     private PlayerController _playerController;
     private List<GameObject> _activePlatforms = new List<GameObject>();
     private int _lastRulePicked = -1;
     private GameObject _startPlat;
-    
+
     [System.Serializable]
     public struct PlatformRule
     {
         public GameObject prefab;
-        
         public Vector2 xRange;
         public Vector2 yRange;
         public float spawnProb;
     }
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
-        
         Random.InitState(System.DateTime.Now.Millisecond);
         _playerController = FindFirstObjectByType<PlayerController>();
     }
 
-    // Update is called once per frame
     void Update()
     {
+        // Safety check if no platforms exist yet
+        if (_activePlatforms.Count == 0) return;
+
         ChunkData highestChunk = _activePlatforms[^1].GetComponent<ChunkData>();
         if (_playerController.transform.position.y >= highestChunk.endPos.position.y - spawnDist)
         {
             SpawnNext();
         }
-        ChunkData lowestChunk = _activePlatforms[0].GetComponent<ChunkData>();
+
         if (_activePlatforms[0].transform.position.y < _playerController.transform.position.y - despawnDist)
         {
             Destroy(_activePlatforms[0]);
@@ -45,8 +57,71 @@ public class LevelGenerator : MonoBehaviour
             if (_startPlat != null)
             {
                 Destroy(_startPlat);
-                
             }
+        }
+    }
+
+    private void SpawnNext()
+    {
+        ChunkData lastChunk = _activePlatforms[^1].GetComponent<ChunkData>();
+
+        PlatformRule rule = PickRule();
+        GameObject chunk = Instantiate(rule.prefab, Vector3.zero, Quaternion.identity);
+
+        ChunkData newChunk = chunk.GetComponent<ChunkData>();
+        chunk.transform.position = new Vector3(
+            _playerController.transform.position.x - newChunk.startPos.localPosition.x,
+            lastChunk.endPos.position.y - newChunk.startPos.localPosition.y,
+            0f
+        );
+
+        // --- NEW: Add icons to all platforms inside this chunk ---
+        AddMinimapIcons(chunk);
+
+        _activePlatforms.Add(chunk);
+    }
+
+    // This helper function iterates through the chunk and finds platform visuals
+    private void AddMinimapIcons(GameObject chunk)
+    {
+        int layer = LayerMask.NameToLayer(minimapLayerName);
+        if (layer == -1) return;
+
+        Renderer[] renderers = chunk.GetComponentsInChildren<Renderer>();
+
+        foreach (Renderer r in renderers)
+        {
+            if (r.gameObject.name == "MinimapIcon") continue;
+
+            GameObject iconObj = new GameObject("MinimapIcon");
+            iconObj.transform.SetParent(r.transform);
+        
+            // --- 1. HANDLE TRANSFORM SCALING ---
+            // We get the world scale of the parent to "neutralize" it.
+            Vector3 pScale = r.transform.lossyScale;
+
+            // Scale: Match parent width (X=1), but use hardcoded height (Y).
+            // We divide by pScale.y so that 'platformIconHeight' is literal units.
+            float localY = (pScale.y != 0) ? (platformIconHeight / pScale.y) : 1f;
+            iconObj.transform.localScale = new Vector3(1f, localY, 1f);
+
+            // --- 2. HANDLE OFFSETS ---
+            // We divide your offsets by the parent scale so that 1.0 in the inspector
+            // always moves the icon by exactly 1.0 Unity unit.
+            float localOffX = (pScale.x != 0) ? (iconHorizontalOffset / pScale.x) : 0;
+            float localOffY = (pScale.y != 0) ? (iconHeightOffset / pScale.y) : 0;
+
+            // Z should stay a tiny negative number to stay in front of the platform.
+            iconObj.transform.localPosition = new Vector3(localOffX, localOffY, -0.1f);
+            iconObj.transform.localRotation = Quaternion.identity;
+
+            // --- 3. VISUALS ---
+            SpriteRenderer sr = iconObj.AddComponent<SpriteRenderer>();
+            sr.sprite = minimapSprite;
+            sr.color = (minimapColor.a == 0) ? Color.white : minimapColor;
+            sr.material = new Material(Shader.Find("Sprites/Default"));
+
+            iconObj.layer = layer;
         }
     }
 
@@ -68,27 +143,7 @@ public class LevelGenerator : MonoBehaviour
         }
         return platformRules[^1];
     }
-    private void SpawnNext()
-    {
-        ChunkData lastChunk = _activePlatforms[^1].GetComponent<ChunkData>();
 
-        Vector3 spawnPos = lastChunk.endPos.position;
-        spawnPos.x = _playerController.transform.position.x;
-
-        PlatformRule rule = PickRule();
-        GameObject chunk = Instantiate(rule.prefab, Vector3.zero, Quaternion.identity);
-
-        
-        ChunkData newChunk = chunk.GetComponent<ChunkData>();
-        chunk.transform.position = new Vector3(
-            _playerController.transform.position.x - newChunk.startPos.localPosition.x,
-            lastChunk.endPos.position.y - newChunk.startPos.localPosition.y,
-            0f
-        );
-       
-
-        _activePlatforms.Add(chunk);
-    }
     public void ResetLevel(Vector3 origin)
     {
         foreach (var platform in _activePlatforms)
@@ -97,11 +152,15 @@ public class LevelGenerator : MonoBehaviour
 
         PlatformRule rule = PickRule();
         GameObject chunk = Instantiate(rule.prefab, _playerController.transform.position, Quaternion.identity);
+        
+        AddMinimapIcons(chunk); // Added here for the first chunk too
         _activePlatforms.Add(chunk);
 
         GameObject startPlatform = GameObject.CreatePrimitive(PrimitiveType.Cube);
         startPlatform.transform.localScale = new Vector3(10, 1, 4);
-        startPlatform.transform.position = _playerController.transform.position - new Vector3( 0,_playerController.transform.localScale.y+3,0);
+        startPlatform.transform.position = _playerController.transform.position - new Vector3(0, _playerController.transform.localScale.y + 3, 0);
+        
+        AddMinimapIcons(startPlatform); // Add icon to the starting platform
         _startPlat = startPlatform;
     }
 }
