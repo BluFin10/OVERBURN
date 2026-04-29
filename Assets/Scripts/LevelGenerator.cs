@@ -85,8 +85,6 @@ public class LevelGenerator : MonoBehaviour
     private void AddMinimapIcons(GameObject chunk)
     {
         int layer = LayerMask.NameToLayer(minimapLayerName);
-        if (layer == -1) return;
-
         Renderer[] renderers = chunk.GetComponentsInChildren<Renderer>();
 
         foreach (Renderer r in renderers)
@@ -96,32 +94,39 @@ public class LevelGenerator : MonoBehaviour
             GameObject iconObj = new GameObject("MinimapIcon");
             iconObj.transform.SetParent(r.transform);
         
-            // --- 1. HANDLE TRANSFORM SCALING ---
-            // We get the world scale of the parent to "neutralize" it.
-            Vector3 pScale = r.transform.lossyScale;
-
-            // Scale: Match parent width (X=1), but use hardcoded height (Y).
-            // We divide by pScale.y so that 'platformIconHeight' is literal units.
-            float localY = (pScale.y != 0) ? (platformIconHeight / pScale.y) : 1f;
-            iconObj.transform.localScale = new Vector3(1f, localY, 1f);
-
-            // --- 2. HANDLE OFFSETS ---
-            // We divide your offsets by the parent scale so that 1.0 in the inspector
-            // always moves the icon by exactly 1.0 Unity unit.
-            float localOffX = (pScale.x != 0) ? (iconHorizontalOffset / pScale.x) : 0;
-            float localOffY = (pScale.y != 0) ? (iconHeightOffset / pScale.y) : 0;
-
-            // Z should stay a tiny negative number to stay in front of the platform.
-            iconObj.transform.localPosition = new Vector3(localOffX, localOffY, -0.1f);
-            iconObj.transform.localRotation = Quaternion.identity;
-
-            // --- 3. VISUALS ---
             SpriteRenderer sr = iconObj.AddComponent<SpriteRenderer>();
             sr.sprite = minimapSprite;
+        
+            // --- 9-SLICE SETTINGS ---
+            sr.drawMode = SpriteDrawMode.Sliced; // Enable 9-slicing
             sr.color = (minimapColor.a == 0) ? Color.white : minimapColor;
             sr.material = new Material(Shader.Find("Sprites/Default"));
-
             iconObj.layer = layer;
+
+            // 1. NEUTRALIZE SCALE
+            // We set localScale to exactly (1 / ParentScale). 
+            // This makes it so 1 unit of 'sr.size' equals 1 unit in the World.
+            Vector3 pScale = r.transform.lossyScale;
+            iconObj.transform.localScale = new Vector3(
+                (pScale.x != 0) ? (1.0f / pScale.x) : 1f,
+                (pScale.y != 0) ? (1.0f / pScale.y) : 1f,
+                1f
+            );
+
+            // 2. SET THE SIZE (In World Units)
+            // Now that scale is neutralized, we just set width and height directly.
+            sr.size = new Vector2(r.bounds.size.x, platformIconHeight);
+
+            // 3. SET THE POSITION (Intuitive Offsets)
+            // Positive X = Right, Positive Y = Up
+            Vector3 worldPos = r.bounds.center;
+            worldPos.x += iconHorizontalOffset;
+            worldPos.y += iconHeightOffset;
+            worldPos.z -= 0.1f;
+            iconObj.transform.position = worldPos;
+
+            // 4. SET THE ROTATION
+            iconObj.transform.eulerAngles = new Vector3(0, 0, 180f);
         }
     }
 
