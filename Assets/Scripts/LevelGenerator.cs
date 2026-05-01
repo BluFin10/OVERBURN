@@ -128,7 +128,7 @@ public class LevelGenerator : MonoBehaviour
             // 4. SET THE ROTATION
             iconObj.transform.eulerAngles = new Vector3(0, 0, 180f);
         }
-    }
+    } 
 
     private PlatformRule PickRule()
     {

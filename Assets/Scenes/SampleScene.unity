@@ -196,7 +196,7 @@ MonoBehaviour:
   minimapLayerName: MinimapIcon
   iconHeightOffset: 1
   iconHorizontalOffset: 1
-  platformIconHeight: 10
+  platformIconHeight: 3
 --- !u!4 &258408004
 Transform:
   m_ObjectHideFlags: 0
@@ -364,7 +364,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraContoller
   baseSmoothSpeed: 0.66
-  baseZOffset: 25
+  baseZOffset: 17.5
   dashZOffset: 10
   jumpZOffset: 20
   mouseInfluence: 1
@@ -1474,7 +1474,7 @@ GameObject:
   - component: {fileID: 889742273}
   - component: {fileID: 889742272}
   - component: {fileID: 889742271}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: CubeOfDeath
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1496,8 +1496,13 @@ MonoBehaviour:
   followSpeed: 0
   minFollowSpeed: 1
   maxDistance: 150
-  yOffset: 0
   startYOffset: 30
+  bodyTiledSprite: {fileID: 21300000, guid: f042fef30df066a44a6ed4a72896cb14, type: 3}
+  bodyTileHeight: 500
+  topEdgeSprite: {fileID: 21300000, guid: 85436d67bfb138940aa98076147bac81, type: 3}
+  topEdgeTextureScale: 50
+  topEdgeHeight: 108
+  minimapLayerName: Minimap
 --- !u!65 &889742272
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2040,8 +2045,8 @@ Transform:
   m_GameObject: {fileID: 1178111700}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalScale: {x: 6, y: 6, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 456952025}
@@ -2347,7 +2352,7 @@ Camera:
   far clip plane: 1000
   field of view: 100
   orthographic: 1
-  orthographic size: 8
+  orthographic size: 50
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
