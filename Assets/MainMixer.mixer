@@ -17,7 +17,7 @@ AudioMixerController:
   m_UpdateMode: 0
   m_ExposedParameters:
   - guid: 69c5ccd549dd65f46bba3c45612ecdf2
-    name: MyExposedParam
+    name: MusicLowPass
   m_AudioMixerGroupViews:
   - guids:
     - 6efe33f6ecf40fe48bd12a807d931730
@@ -69,7 +69,9 @@ AudioMixerSnapshotController:
   m_Name: Snapshot
   m_AudioMixer: {fileID: 24100000}
   m_SnapshotID: 7399338c7e2a1cc49921a5c90627849d
-  m_FloatValues: {}
+  m_FloatValues:
+    69c5ccd549dd65f46bba3c45612ecdf2: 22000
+    0ca5652d2d1d02d44b8cb3d9aa7276d1: -5.11
   m_TransitionOverrides: {}
 --- !u!243 &741157123164969155
 AudioMixerGroupController:

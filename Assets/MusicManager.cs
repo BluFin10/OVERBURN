@@ -12,32 +12,21 @@ public class MusicManager : MonoBehaviour
     public float clearFreq = 22000f;
     public float transitionSpeed = 5f;
 
-    private float targetFreq;
-    private float currentFreq;
+    public float targetFreq;
+    public float currentFreq;
+    
 
-    void Start()
+    // The "Instant Muffle" you wanted to keep here
+    public void ToggleMuffle(float freq = 500f)
     {
-        targetFreq = clearFreq;
-        currentFreq = clearFreq;
+        masterMixer.SetFloat(parameterName, freq);
     }
 
-    void Update()
+    // The method HeatManager will call every frame
+    public void SetDynamicFrequency(float freq)
     {
-        // Smoothly interpolate the frequency value
-        currentFreq = Mathf.Lerp(currentFreq, targetFreq, Time.deltaTime * transitionSpeed);
-        
-        // Apply the value to the Mixer
-        masterMixer.SetFloat(parameterName, currentFreq);
-
-        // Press 'M' to test
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            ToggleMuffle();
-        }
-    }
-
-    public void ToggleMuffle()
-    {
-        targetFreq = (targetFreq == clearFreq) ? muffledFreq : clearFreq;
+        // We use SetFloat to talk to the 'Exposed Parameter' in the Mixer
+        masterMixer.SetFloat(parameterName, freq);
     }
 }
+
