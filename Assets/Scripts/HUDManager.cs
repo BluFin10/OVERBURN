@@ -31,11 +31,12 @@ public class HUDManager : MonoBehaviour
         fillImage.fillAmount = 1-t;
         // --- Heat Capsule Logic (New) ---
         // Calculate 0 to 1 progress based on heatCapsuleMax
-        float heatProgress = _heatManager.heat / heatCapsuleMax;
+        float heatProgress = ((_heatManager.heat / heatCapsuleMax) - 1)*-1;
         // Apply to fill amount (Clamped so it doesn't break if heat > max)
         fillImageHeat.fillAmount = Mathf.Clamp01(heatProgress);
         scoreText.text = _gameManager.heatedScore.ToString();
         scoreTextShadow.text = _gameManager.heatedScore.ToString();
+        Debug.Log(fillImageHeat);
         Debug.Log(fillImageHeat.fillAmount);
     }
 }
