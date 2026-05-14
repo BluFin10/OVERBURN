@@ -422,6 +422,9 @@ MonoBehaviour:
   iconHeightOffset: 1
   iconHorizontalOffset: 1
   platformIconHeight: 3
+  decorationPrefab: {fileID: 2261127636399890261, guid: b165db82525cd91439cc8c6c402d3478, type: 3}
+  baseModelWidth: 1
+  decorationScale: 1
 --- !u!4 &258408004
 Transform:
   m_ObjectHideFlags: 0

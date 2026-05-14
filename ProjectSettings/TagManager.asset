@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - Platform
+  - Decoration
   layers:
   - Default
   - TransparentFX

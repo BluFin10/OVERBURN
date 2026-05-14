@@ -17,7 +17,10 @@ public class LevelGenerator : MonoBehaviour
     [SerializeField] private float iconHeightOffset = 1.0f;
     [SerializeField] private float iconHorizontalOffset = 1.0f;
     [SerializeField] private float platformIconHeight = 1.0f;
-    
+    [Header("Tiling Settings")]
+    [SerializeField] private GameObject decorationPrefab;
+    [SerializeField] private float baseModelWidth = 1.0f; // Width at 1,1,1 scale
+    [SerializeField] private float decorationScale = 1.0f; // Uniform scale (X,Y,Z)
 
     private PlayerController _playerController;
     private List<GameObject> _activePlatforms = new List<GameObject>();
@@ -77,6 +80,8 @@ public class LevelGenerator : MonoBehaviour
 
         // --- NEW: Add icons to all platforms inside this chunk ---
         AddMinimapIcons(chunk);
+        
+        ApplyDecoration(chunk);
 
         _activePlatforms.Add(chunk);
     }
@@ -93,10 +98,10 @@ public class LevelGenerator : MonoBehaviour
 
             GameObject iconObj = new GameObject("MinimapIcon");
             iconObj.transform.SetParent(r.transform);
-        
+
             SpriteRenderer sr = iconObj.AddComponent<SpriteRenderer>();
             sr.sprite = minimapSprite;
-        
+
             // --- 9-SLICE SETTINGS ---
             sr.drawMode = SpriteDrawMode.Sliced; // Enable 9-slicing
             sr.color = (minimapColor.a == 0) ? Color.white : minimapColor;
@@ -128,7 +133,7 @@ public class LevelGenerator : MonoBehaviour
             // 4. SET THE ROTATION
             iconObj.transform.eulerAngles = new Vector3(0, 0, 180f);
         }
-    } 
+    }
 
     private PlatformRule PickRule()
     {
@@ -146,6 +151,7 @@ public class LevelGenerator : MonoBehaviour
                 return platformRules[i];
             }
         }
+
         return platformRules[^1];
     }
 
@@ -157,15 +163,64 @@ public class LevelGenerator : MonoBehaviour
 
         PlatformRule rule = PickRule();
         GameObject chunk = Instantiate(rule.prefab, _playerController.transform.position, Quaternion.identity);
-        
+
         AddMinimapIcons(chunk); // Added here for the first chunk too
         _activePlatforms.Add(chunk);
 
         GameObject startPlatform = GameObject.CreatePrimitive(PrimitiveType.Cube);
         startPlatform.transform.localScale = new Vector3(10, 1, 4);
-        startPlatform.transform.position = _playerController.transform.position - new Vector3(0, _playerController.transform.localScale.y + 3, 0);
-        
+        startPlatform.transform.position = _playerController.transform.position -
+                                           new Vector3(0, _playerController.transform.localScale.y + 3, 0);
+
         AddMinimapIcons(startPlatform); // Add icon to the starting platform
         _startPlat = startPlatform;
+    }
+
+    private void ApplyDecoration(GameObject chunk)
+    {
+        Renderer[] renderers = chunk.GetComponentsInChildren<Renderer>();
+    
+        // Cache Shader Property IDs for better performance
+        int minXID = Shader.PropertyToID("_MinWorldX");
+        int maxXID = Shader.PropertyToID("_MaxWorldX");
+
+        // Calculate the actual width based on your scale
+        float scaledWidth = baseModelWidth * decorationScale;
+
+        foreach (Renderer r in renderers)
+        {
+            if (r.gameObject.name == "MinimapIcon" || r.gameObject.CompareTag("Decoration")) continue;
+
+            float platMinX = r.bounds.min.x;
+            float platMaxX = r.bounds.max.x;
+            float platformTotalWidth = r.bounds.size.x;
+
+            // How many tiles do we need to cover the platform?
+            int count = Mathf.CeilToInt(platformTotalWidth / scaledWidth);
+
+            for (int i = 0; i < count; i++)
+            {
+                // Position: Start at the left edge, move right by 'i' increments
+                float xPos = platMinX + (i * scaledWidth) + (scaledWidth * 0.5f);
+                Vector3 spawnPos = new Vector3(xPos, r.bounds.max.y, r.transform.position.z);
+
+                GameObject deco = Instantiate(decorationPrefab, spawnPos, Quaternion.identity, r.transform);
+                deco.name = "Decoration";
+                deco.tag = "Decoration";
+            
+                // APPLY UNIFORM SCALE
+                deco.transform.localScale = new Vector3(decorationScale, decorationScale, decorationScale);
+
+                // APPLY CLIPPING LIMITS
+                MaterialPropertyBlock propBlock = new MaterialPropertyBlock();
+                Renderer decoRenderer = deco.GetComponent<Renderer>();
+                decoRenderer.GetPropertyBlock(propBlock);
+            
+                propBlock.SetFloat(minXID, platMinX); // Set the left boundary
+                propBlock.SetFloat(maxXID, platMaxX); // Set the right boundary
+            
+                decoRenderer.SetPropertyBlock(propBlock);
+            }
+        }
     }
 }
