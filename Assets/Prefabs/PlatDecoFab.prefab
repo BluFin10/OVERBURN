@@ -12,10 +12,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlatDecoFab
       objectReference: {fileID: 0}
-    - target: {fileID: 100000, guid: 25d7b8ed596a0c643b12cb0e8b79b3ff, type: 3}
-      propertyPath: m_TagString
-      value: Decoration
-      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 25d7b8ed596a0c643b12cb0e8b79b3ff, type: 3}
       propertyPath: m_LocalPosition.x
       value: -107.29959

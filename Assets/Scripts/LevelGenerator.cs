@@ -20,7 +20,8 @@ public class LevelGenerator : MonoBehaviour
     [Header("Tiling Settings")]
     [SerializeField] private GameObject decorationPrefab;
     [SerializeField] private float baseModelWidth = 1.0f; // Width at 1,1,1 scale
-    [SerializeField] private float decorationScale = 1.0f; // Uniform scale (X,Y,Z)
+    [SerializeField] private Vector3 decorationScale = Vector3.one; // X, Y, and Z individually
+    [SerializeField] private Vector3 decorationRotation;
 
     private PlayerController _playerController;
     private List<GameObject> _activePlatforms = new List<GameObject>();
@@ -179,13 +180,11 @@ public class LevelGenerator : MonoBehaviour
     private void ApplyDecoration(GameObject chunk)
     {
         Renderer[] renderers = chunk.GetComponentsInChildren<Renderer>();
-    
-        // Cache Shader Property IDs for better performance
         int minXID = Shader.PropertyToID("_MinWorldX");
         int maxXID = Shader.PropertyToID("_MaxWorldX");
 
-        // Calculate the actual width based on your scale
-        float scaledWidth = baseModelWidth * decorationScale;
+        // Tiling count is based ONLY on the X scale
+        float scaledWidth = baseModelWidth * decorationScale.x;
 
         foreach (Renderer r in renderers)
         {
@@ -195,30 +194,34 @@ public class LevelGenerator : MonoBehaviour
             float platMaxX = r.bounds.max.x;
             float platformTotalWidth = r.bounds.size.x;
 
-            // How many tiles do we need to cover the platform?
             int count = Mathf.CeilToInt(platformTotalWidth / scaledWidth);
 
             for (int i = 0; i < count; i++)
             {
-                // Position: Start at the left edge, move right by 'i' increments
                 float xPos = platMinX + (i * scaledWidth) + (scaledWidth * 0.5f);
+            
+                // We use r.bounds.max.y so it sits on top, regardless of platform thickness
                 Vector3 spawnPos = new Vector3(xPos, r.bounds.max.y, r.transform.position.z);
 
-                GameObject deco = Instantiate(decorationPrefab, spawnPos, Quaternion.identity, r.transform);
+                GameObject deco = Instantiate(decorationPrefab, spawnPos, Quaternion.Euler(decorationRotation));
+                deco.transform.SetParent(r.transform, true);
+
+                // NEUTRALIZE PARENT SCALE while applying your custom X, Y, Z
+                Vector3 pScale = r.transform.lossyScale;
+                deco.transform.localScale = new Vector3(
+                    decorationScale.x / pScale.x,
+                    decorationScale.y / pScale.y,
+                    decorationScale.z / pScale.z
+                );
+
                 deco.name = "Decoration";
                 deco.tag = "Decoration";
-            
-                // APPLY UNIFORM SCALE
-                deco.transform.localScale = new Vector3(decorationScale, decorationScale, decorationScale);
 
-                // APPLY CLIPPING LIMITS
                 MaterialPropertyBlock propBlock = new MaterialPropertyBlock();
                 Renderer decoRenderer = deco.GetComponent<Renderer>();
                 decoRenderer.GetPropertyBlock(propBlock);
-            
-                propBlock.SetFloat(minXID, platMinX); // Set the left boundary
-                propBlock.SetFloat(maxXID, platMaxX); // Set the right boundary
-            
+                propBlock.SetFloat(minXID, platMinX);
+                propBlock.SetFloat(maxXID, platMaxX);
                 decoRenderer.SetPropertyBlock(propBlock);
             }
         }
